@@ -30,6 +30,11 @@ pub fn spawn_coin(
     }
 }
 
+pub fn despawn_coin(mut coin_query: Query<Entity, With<Coin>>, mut commands: Commands) {
+    for coin_entity in coin_query.iter_mut() {
+        commands.entity(coin_entity).despawn();
+    }
+}
 pub fn spawn_coin_over_time(
     window_query: Query<&Window, With<PrimaryWindow>>,
     coin_resource: Res<CoinResource>,

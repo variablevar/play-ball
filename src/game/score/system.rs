@@ -1,4 +1,4 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, transform::commands, window::PrimaryWindow};
 
 use super::{component::ScoreComponent, resource::GameScore};
 
@@ -38,4 +38,18 @@ pub fn spawn_score(
         },
         ScoreComponent,
     ));
+}
+
+pub fn despawn_score(mut commands: Commands, mut score_query: Query<Entity, With<ScoreComponent>>) {
+    for socre in score_query.iter_mut() {
+        commands.entity(socre).despawn();
+    }
+}
+
+pub fn destory_score(mut game_score: ResMut<GameScore>) {
+    game_score.reset();
+}
+
+pub fn init_score(mut commands: Commands) {
+    commands.init_resource::<GameScore>();
 }

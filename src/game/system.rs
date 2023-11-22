@@ -1,9 +1,13 @@
 use bevy::{app::AppExit, prelude::*, window::PrimaryWindow};
 
-use crate::constant::BOX_SIZE;
+use crate::{constant::BOX_SIZE, GameState};
 
 use super::{
-    enemy::component::Enemy, event::GameOver, player::component::Player, score::resource::GameScore,
+    enemy::component::Enemy,
+    event::GameOver,
+    player::component::Player,
+    score::resource::{GameScore, HighScore},
+    SimulationState,
 };
 
 pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
@@ -16,15 +20,16 @@ pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<Pr
 
 pub fn on_game_over(
     mut commands: Commands,
-    mut player_query: Query<(Entity, &Transform), With<Player>>,
+    mut player_query: Query<&Transform, With<Player>>,
     asset_server: Res<AssetServer>,
     enemy_query: Query<&Transform, With<Enemy>>,
     mut game_over_event_writer: EventWriter<GameOver>,
-    game_score: Res<GameScore>,
+    mut game_score: ResMut<GameScore>,
+    mut high_score: ResMut<HighScore>,
 ) {
     for enemy_transform in enemy_query.iter() {
         match player_query.get_single_mut() {
-            Ok((player_entity, player_transform)) => {
+            Ok(player_transform) => {
                 let distance = enemy_transform
                     .translation
                     .distance(player_transform.translation);
@@ -35,25 +40,48 @@ pub fn on_game_over(
                         source: asset_server.load("audio/impactBell_heavy_001.ogg"),
                         ..Default::default()
                     });
-                    commands.entity(player_entity).despawn();
                     game_over_event_writer.send(GameOver {
                         score: game_score.score(),
                     });
+                    high_score.add_score(game_score.to_owned());
+                    game_score.reset();
                 }
             }
-            Err(_) => println!("Game Over"),
+            Err(_) => {}
         }
     }
 }
 
-pub fn handle_game_over(mut game_over_event_reader: EventReader<GameOver>) {
+pub fn handle_game_over(
+    mut commands: Commands,
+    mut game_over_event_reader: EventReader<GameOver>,
+    high_score: Res<HighScore>,
+) {
     for event in game_over_event_reader.read() {
+        println!("The previous score are : {:?}", high_score.get_high_score());
         println!("Your final score is: {}", event.score.to_string());
+        commands.insert_resource(NextState(Some(SimulationState::Paused)));
+        commands.insert_resource(NextState(Some(GameState::GameOver)));
     }
 }
 
 pub fn on_exit_game(mut event_writer: EventWriter<AppExit>, keyboard_event: Res<Input<KeyCode>>) {
     if keyboard_event.just_released(KeyCode::Escape) {
         event_writer.send(AppExit);
+    }
+}
+
+pub fn toggle_simulation(
+    mut commands: Commands,
+    keyboard_event: Res<Input<KeyCode>>,
+    simulation_state: Res<State<SimulationState>>,
+) {
+    if keyboard_event.just_pressed(KeyCode::Space) {
+        let state = simulation_state.get();
+        if *state == SimulationState::Paused {
+            commands.insert_resource(NextState(Some(SimulationState::Playing)));
+        } else {
+            commands.insert_resource(NextState(Some(SimulationState::Paused)));
+        }
     }
 }

@@ -1,4 +1,4 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, transform::commands, window::PrimaryWindow};
 
 use crate::{
     constant::{BOX_SIZE, COIN_SIZE, PLAYER_SPEED},
@@ -22,7 +22,11 @@ pub fn spawn_player(
         Player::default(),
     ));
 }
-
+pub fn despawn_player(mut commands: Commands, mut player_query: Query<Entity, With<Player>>) {
+    for entity in player_query.iter_mut() {
+        commands.entity(entity).despawn();
+    }
+}
 pub fn move_player(
     keyboard_event: Res<Input<KeyCode>>,
     time: Res<Time>,
