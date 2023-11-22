@@ -17,22 +17,8 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(GamePlugin)
         .add_plugins(MainMenuPlugin)
-        .add_systems(Update, spawn_button)
         .add_systems(Update, toggle_game_mode)
         .run();
-}
-
-fn spawn_button(mut commands: Commands) {
-    commands.spawn(ButtonBundle {
-        style: Style {
-            align_self: AlignSelf::Center,
-            ..Default::default()
-        },
-        button: Button {},
-        background_color: BackgroundColor::DEFAULT,
-        transform: Transform::from_xyz(200.0, 200.0, 0.0),
-        ..Default::default()
-    });
 }
 
 #[derive(States, Default, Debug, Hash, PartialEq, Eq, Clone)]

@@ -1,10 +1,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::random;
 
-use crate::{
-    constant::{BOX_SIZE, ENEMY_COUNT, ENEMY_SPEED},
-    GameState,
-};
+use crate::constant::{BOX_SIZE, ENEMY_COUNT, ENEMY_SPEED};
 
 use super::component::Enemy;
 

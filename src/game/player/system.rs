@@ -1,4 +1,4 @@
-use bevy::{prelude::*, transform::commands, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
     constant::{BOX_SIZE, COIN_SIZE, PLAYER_SPEED},
